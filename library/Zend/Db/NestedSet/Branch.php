@@ -1,6 +1,6 @@
 <?php
 class Zend_Db_NestedSet_Branch extends Zend_Db_Table_Rowset_Abstract
-                                    implements Zend_Db_TreeBranchInterface
+                               implements Zend_Db_TreeBranchInterface
 {
 
     /**

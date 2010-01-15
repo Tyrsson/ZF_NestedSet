@@ -285,4 +285,18 @@ class Zend_Db_NestedSetNodeTest extends Zend_Test_PHPUnit_DatabaseTestCase {
         $this->assertEquals('Plasma', $values[0]);
         $this->assertEquals('LCD', $values[1]);             
     }
+    
+    public function testGetPath()
+    {
+        $node = $this->tree->fetchNode(
+            $this->tree->select()->where('categoryName=?', 'LCD')
+        );
+        $path = $node->getPath('categoryName');
+        $pathString = '';
+        foreach ($path as $item) {
+            $this->assertArrayHasKey('categoryName', $item);
+            $pathString .= $item['categoryName'] . '/';
+        }
+        $this->assertEquals('Electronics/Televisions/LCD/', $pathString);
+    }
 }

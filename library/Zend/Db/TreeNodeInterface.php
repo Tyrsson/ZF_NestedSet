@@ -14,13 +14,6 @@ interface Zend_Db_TreeNodeInterface
      * @return bool
      */
     public function isRoot();
-
-    /**
-     * Return whether or not this node has siblings
-     *
-     * @return bool
-     */
-    public function hasSiblings();
     
     /**
      * Return any siblings of this node or null if none
@@ -28,13 +21,6 @@ interface Zend_Db_TreeNodeInterface
      * @return mixed|Zend_Db_Tree_BranchIterator
      */
     public function getSiblings();
-
-    /**
-     * Returns the depth of this tree node
-     *
-     * @return int $depth
-     */
-    public function getDepth();
 
     /**
      * Returns array of values representing the ancestry of this node

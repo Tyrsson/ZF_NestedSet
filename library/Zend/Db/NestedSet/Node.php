@@ -185,9 +185,43 @@ class Zend_Db_NestedSet_Node extends Zend_Db_Table_Row_Abstract
         return $valid;
     }
 
-    public function getPath()
-    {
-
+    /**
+     * Return the path to this node as an array of column values, the column
+     * value to return cannot be primary key, left or right identifiers.
+     * 
+     * @param string $column
+     * @return array $path
+     */
+    public function getPath($column = null)
+    {        
+        $select = $this->_table->select();
+        $tableName = $this->_table->info(Zend_Db_Table::NAME);
+        $lft = $this->_table->getLeftKey();
+        $rgt = $this->_table->getRightKey();
+        $primary = $this->_table->info(Zend_Db_Table::PRIMARY);
+        
+        if($column == null ||
+           $column == $primary[1] ||
+           $column == $lft ||
+           $column == $rgt)
+        {
+            throw new Zend_Db_NestedSet_Exception(
+                'Column cannot be null, primary, left or right.'
+            );       
+        }
+        if (!in_array($column, $this->_table->info(Zend_Db_Table::COLS))) {
+            throw new Zend_Db_NestedSet_Exception('Unknown column.');
+        }
+                       
+        $sql  = "SELECT p.{$column}";
+        $sql .= " FROM {$tableName} AS n, {$tableName} AS p";
+        $sql .= " WHERE n.{$lft} BETWEEN p.{$lft} AND p.{$rgt}";
+        $sql .= " AND n.{$column} = '{$this->$column}'";
+        $sql .= " ORDER BY p.{$lft}";
+        
+        return $this->_table->getAdapter()
+                            ->query($sql)
+                            ->fetchAll();                    
     }
 
     public function getAncestors()
@@ -211,18 +245,8 @@ class Zend_Db_NestedSet_Node extends Zend_Db_Table_Row_Abstract
     {
 
     }
-    
-    public function hasSiblings()
-    {
-
-    }
 
     public function getSiblings()
-    {
-
-    }
-
-    public function getDepth()
     {
 
     }
