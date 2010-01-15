@@ -1,6 +1,6 @@
 <?php
 
-abstract class Zend_Db_NestedSet extends Zend_Db_Table_Abstract
+abstract class Zend_Db_NestedSet extends Zend_Db_Table
                                  implements Zend_Db_TreeInterface
 {
 	protected $_rowClass = "Zend_Db_NestedSet_Node";
@@ -576,15 +576,17 @@ abstract class Zend_Db_NestedSet extends Zend_Db_Table_Abstract
     /**
      * Return a branch, starting at $node, ordered on left value, depth first
      *
-     * @param Zend_Db_TreeNodeInterface $node
+     * @param mixed Zend_Db_Table_Select|Zend_Db_TreeNodeInterface $node
      * @return Zend_Db_TreeNodeInterface $rowset
      */
-    public function fetchBranch(Zend_Db_TreeNodeInterface $node = null, 
-                                $rootId = null)
+    public function fetchBranch($node = null, $rootId = null)
     {
         if($this->_multiRoot && !$rootId) {
             throw new Zend_Db_NestedSet_Exception('You must specify a rootId.');
-        }        
+        }
+        if($node instanceof Zend_Db_Table_Select) {
+            $node = $this->fetchNode($node);
+        }
         
         $lftKey = $this->getLeftKey();
         $rgtKey = $this->getRightKey();

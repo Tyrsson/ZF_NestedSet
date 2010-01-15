@@ -53,9 +53,9 @@ interface Zend_Db_TreeInterface
     /**
      * Return a branch, starting at $node or the whole tree
      *
-     * @param Zend_Db_TreeNodeInterface $node
+     * @param mixed Zend_Db_Table_Select|Zend_Db_TreeNodeInterface $node
      */
-    public function fetchBranch(Zend_Db_TreeNodeInterface $node = null);    
+    public function fetchBranch($node = null);    
 
     /**
      * Add a child node, 'last child' position by default
