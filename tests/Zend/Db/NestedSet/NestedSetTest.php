@@ -254,18 +254,18 @@ class Zend_Db_NestedSetTest extends Zend_Test_PHPUnit_DatabaseTestCase
         );        
     }
 
-    public function testHasChildrenReturnsTrueOnBranchParent()
+    public function testHasDescendantsReturnsTrueOnBranchParent()
     {
         $select = $this->tree->select()->where('categoryName =?', 'Televisions');
         $node = $this->tree->fetchNode($select);
-        $this->assertTrue($this->tree->hasChildren($node));
+        $this->assertTrue($node->hasDescendants());
     }
     
-    public function testHasChildrenReturnsFalseOnLeafNode()
+    public function testHasDescendantsReturnsFalseOnLeafNode()
     {
         $select = $this->tree->select()->where('categoryName =?', 'LCD');
         $node = $this->tree->fetchNode($select);
-        $this->assertFalse($this->tree->hasChildren($node));
+        $this->assertFalse($node->hasDescendants());
     }
 
     public function testRootNodeIsValidAfterAddingChildNodes()

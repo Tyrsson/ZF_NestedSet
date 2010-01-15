@@ -264,41 +264,6 @@ abstract class Zend_Db_NestedSet extends Zend_Db_Table_Abstract
     }
 
     /**
-     * Check for node being a leaf
-     * @param Zend_Db_TreeNodeInterface $node
-     * @return bool
-     */
-    public function isLeaf(Zend_Db_TreeNodeInterface $node)
-    {
-        $lftKey = $this->getLeftKey();
-        $rgtKey = $this->getRightKey();
-        return (($node->$rgtKey - $node->$lftKey) == 1) ? true : false;
-    }
-
-    /**
-     * Check for descendants
-     * @param Zend_Db_TreeNodeInterface $node
-     * @return bool
-     */
-    public function hasChildren( Zend_Db_TreeNodeInterface $node)
-    {
-        $lftKey = $this->getLeftKey();
-        $rgtKey = $this->getRightKey();
-        return (($node->$rgtKey - $node->$lftKey) > 1) ? true : false;
-    }
-
-    /**
-     * Check if node is root of the tree
-     * @param Zend_Db_TreeNodeInterface $node
-     * @return bool
-     */
-    public function isRoot(Zend_Db_TreeNodeInterface $node)
-    {
-        $lftKey = $this->getLeftKey();
-        return ($node->$lftKey == 1) ? true : false;
-    }
-
-    /**
      * Shift the left and right values of nodes to make room for the addition of
      * a new node. Calls to this method should be wrapped in a transaction.
      *
@@ -645,92 +610,30 @@ abstract class Zend_Db_NestedSet extends Zend_Db_Table_Abstract
     }
 
     /**
-     * Return the tree depth of a sepcified node
-     *
-     * @return int $depth
-     */
-    public function getDepth()
-    {
-        throw new RuntimeException('Not implemented.');
-    }
-
-    /**
-     * Proxies to getDepth()
-     *
-     * @see self::getDepth()
-     * @return int
-     */
-    public function getLevel()
-    {
-        return $this->getDepth();
-    }
-
-    /**
-     * Move a node (and all descendants) to the first child location of
-     * $destination node
-     *
-     * @param Zend_Db_NodeInterface $destination
-     * @param Zend_Db_NodeInterface $origin
-     * @return array new location left & right values
-     */
-    public function moveNodeToFirstChild(Zend_Db_TreeNodeInterface $destination,
-                                         Zend_Db_TreeNodeInterface $origin)
-    {
-        return $this->moveNode($destination, $origin, self::FIRST_CHILD);
-    }
-
-    /**
-     * Move a node (and all descendants) to the last child location of
-     * $destination node
-     *
-     * @param Zend_Db_NodeInterface $destination
-     * @param Zend_Db_NodeInterface $origin
-     * @return array new location left & right values
-     */
-    public function moveNodeToLastChild(Zend_Db_TreeNodeInterface $destination,
-                                        Zend_Db_TreeNodeInterface $origin)
-    {
-        return $this->moveNode($destination, $origin, self::LAST_CHILD);
-    }
-
-    /**
-     * Move a node (and all descendants) to the previous sibling location of
-     * $destination node
-     *
-     * @param Zend_Db_NodeInterface $destination
-     * @param Zend_Db_NodeInterface $origin
-     * @return array new location left & right values
-     */
-    public function moveNodeToPreviousSibling(Zend_Db_TreeNodeInterface $destination,
-                                              Zend_Db_TreeNodeInterface $origin)
-    {
-        return $this->moveNode($destination, $origin, self::PREVIOUS_SIBLING);
-    }
-
-    /**
-     * Move a node (and all descendants) to the next sibling location of
-     * $destination node
-     *
-     * @param Zend_Db_NodeInterface $destination
-     * @param Zend_Db_NodeInterface $origin
-     * @return array new location left & right values
-     */
-    public function moveNodeToNextSibling(Zend_Db_TreeNodeInterface $destination,
-                                          Zend_Db_TreeNodeInterface $origin)
-    {
-        return $this->moveNode($destination, $origin, self::NEXT_SIBLING);
-    }
-
-    /**
      * Add a child node to the 'last child' position
      *
      * @param Zend_Db_NodeInterface $destination
      * @param Zend_Db_NodeInterface $origin
-     * @return array new location left & right values
+     * @return int $id of new node
      */
-    public function addChild(Zend_Db_TreeNodeInterface $destination,
-                             Zend_Db_TreeNodeInterface $origin)
+    public function addChild(Zend_Db_TreeNodeInterface $parent,
+                             array $data,
+                             $position = self::LAST_CHILD)
     {
-        return $this->moveNodeToLastChild($destination, $origin);
+        return $this->addNode($parent, $data, $position);
+    }
+    
+    /**
+     * Add a sibling node, 'next' position by default
+     *
+     * @param Zend_Db_NodeInterface $relation
+     * @param array $data
+     * @return int $id of new node
+     */
+    public function addSibling(Zend_Db_TreeNodeInterface $relation,
+                               array $data,
+                               $position = self::NEXT_SIBLING)
+    {
+        return $this->addNode($relation, $data, $position);
     }
 }

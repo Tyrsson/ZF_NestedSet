@@ -1,10 +1,12 @@
 <?php
 class Zend_Db_NestedSet_Node extends Zend_Db_Table_Row_Abstract
-                                  implements Zend_Db_TreeNodeInterface,
-                                             RecursiveIterator,
-                                             Countable
+                             implements Zend_Db_TreeNodeInterface,
+                                        RecursiveIterator,
+                                        Countable
 {
 
+    const NODE_PATH_SEPARATOR = ':';
+    
     /**
      * List of child nodes
      *
@@ -78,7 +80,9 @@ class Zend_Db_NestedSet_Node extends Zend_Db_Table_Row_Abstract
 	 */
     public function isLeaf()
     {
-        return $this->getTable()->isLeaf($this);
+        $lft = $this->_table->getLeftKey();
+        $rgt = $this->_table->getRightKey();
+        return (($this->$rgt - $this->$lft) == 1) ? true : false;        
     }
 
     /**
@@ -88,7 +92,8 @@ class Zend_Db_NestedSet_Node extends Zend_Db_Table_Row_Abstract
      */
     public function isRoot()
     {
-    	return $this->getTable()->isRoot($this);
+    	$lft = $this->_table->getLeftKey();
+        return ($this->$lft == 1) ? true : false;
     }
 
     /**
@@ -99,8 +104,6 @@ class Zend_Db_NestedSet_Node extends Zend_Db_Table_Row_Abstract
     public function hasChildren()
     {
         return $this->count() > 0;
-        //$children = $this->getTable()->hasChildren($this);
-        //return ($count && $children) ? true : false;
     }
     
     public function addChild($child)
@@ -156,15 +159,12 @@ class Zend_Db_NestedSet_Node extends Zend_Db_Table_Row_Abstract
 
     public function current()
     {
-        //current($this->_children);
-        $current = current($this->_children);
-        return $current;
+        return current($this->_children);
     }
 
     public function key()
     {
-        $key = key($this->_children);
-        return $key;
+        return key($this->_children);
     }
 
     public function next()
@@ -195,6 +195,18 @@ class Zend_Db_NestedSet_Node extends Zend_Db_Table_Row_Abstract
 
     }
 
+    /**
+     * Reutrns whether the node has descendant nodes
+     * 
+     * @return bool
+     */
+    public function hasDescendants()
+    {
+        $lft = $this->_table->getLeftKey();
+        $rgt = $this->_table->getRightKey();
+        return (($this->$rgt - $this->$lft) > 1) ? true : false;        
+    }
+    
     public function getDescendants()
     {
 

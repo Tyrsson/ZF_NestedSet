@@ -21,7 +21,7 @@ interface Zend_Db_TreeNodeInterface
      * @return bool
      */
     public function hasSiblings();
-
+    
     /**
      * Return any siblings of this node or null if none
      *
@@ -58,10 +58,17 @@ interface Zend_Db_TreeNodeInterface
     public function getAncestors();
 
     /**
+     * Returns whether this node has descendants
+     * 
+     * @return bool
+     */
+    public function hasDescendants();
+    
+    /**
      * Return a branch filled with an decendants of this node
      *
      * @return Zend_Db_Tree_BranchInterface
      */
-    public function getDescendants();
+    public function getDescendants(); 
 
 }
