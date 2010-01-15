@@ -106,6 +106,11 @@ class Zend_Db_NestedSet_Node extends Zend_Db_Table_Row_Abstract
         return $this->count() > 0;
     }
     
+    /**
+     * Adds a child table row object
+     * 
+     * @param unknown_type $child
+     */
     public function addChild($child)
     {
         if($child instanceof Zend_Db_TreeNodeInterface) {
@@ -116,6 +121,11 @@ class Zend_Db_NestedSet_Node extends Zend_Db_Table_Row_Abstract
          }
     }
     
+    /**
+     * Adds a set of table row objects as children
+     * 
+     * @param unknown_type $children
+     */
     public function addChildren($children)
     {
         if(is_array($children)) {            
@@ -151,32 +161,50 @@ class Zend_Db_NestedSet_Node extends Zend_Db_Table_Row_Abstract
         return null;
     }
     
+    /**
+     * Completes interface
+     */
     public function count()
     {
         $count =  count($this->_children);
         return $count;
     }
 
+    /**
+     * Completes interface
+     */
     public function current()
     {
         return current($this->_children);
     }
 
+    /**
+     * Completes interface
+     */
     public function key()
     {
         return key($this->_children);
     }
 
+    /**
+     * Completes interface
+     */
     public function next()
     {
         next($this->_children);
     }
 
+    /**
+     * Completes interface
+     */
     public function rewind()
     {
         reset($this->_children);
     }
 
+    /**
+     * Completes interface
+     */
     public function valid()
     {
         $key = key($this->_children);
@@ -226,7 +254,7 @@ class Zend_Db_NestedSet_Node extends Zend_Db_Table_Row_Abstract
 
     public function getAncestors()
     {
-
+        // combine with getPath();
     }
 
     /**
@@ -243,11 +271,11 @@ class Zend_Db_NestedSet_Node extends Zend_Db_Table_Row_Abstract
     
     public function getDescendants()
     {
-
+        // get immediate decendants or get all?
     }
 
     public function getSiblings()
     {
-
+        // get all where same parent key
     }
 }

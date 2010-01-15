@@ -36,20 +36,18 @@ class Zend_Db_NestedSet_Branch extends Zend_Db_Table_Rowset_Abstract
 
         // TODO fallback to recursion to build the array if no parent column
         if(!in_array($parent, $tableInfo['cols'])) {
-            throw new RuntimeException('Cannot build mutli-dimensional array. Table has no parent column.');
+            throw new RuntimeException(
+                'Cannot build mutli-dimensional array. Table has no parent column.'
+            );
         }
 
         foreach ($this->_data as $node) {
                 $node['children'] = array();
-            if (isset($ref[$node[$parent]])) { // not root, we have a reference to the parent
-                // Add node to the parents children
+            if (isset($ref[$node[$parent]])) { 
                 $ref[$node[$parent]]['children'][$node[$primary]] = $node;
-                // Add a reference to the current node for the next iteration
                 $ref[$node[$primary]] = & $ref[$node[$parent]]['children'][$node[$primary]];
-            } else { // root level node
-                // create root node
+            } else {
                 $tree[$node[$primary]] = $node;
-                // created reference to the root node
                 $ref[$node[$primary]] = & $tree[$node[$primary]];
             }
         }
@@ -73,12 +71,13 @@ class Zend_Db_NestedSet_Branch extends Zend_Db_Table_Rowset_Abstract
 
         // TODO fallback to recursion to build the array at this point
         if(!in_array($parent, $tableInfo['cols'])) {
-            throw new RuntimeException('Cannot build mutli-dimensional array. Table has no parent column.');
+            throw new RuntimeException(
+                'Cannot build mutli-dimensional array. Table has no parent column.'
+            );
         }
 
         foreach ($this->_data as $value) {
-        	if ( isset($ref[$value[$parent]]) ) { // not root, we have reference to the parent
-        	    // Add node to the parents children
+        	if ( isset($ref[$value[$parent]]) ) { 
                 $node = new $this->_rowClass(
                             array(
                                 'table'    => $this->_table,
@@ -88,10 +87,8 @@ class Zend_Db_NestedSet_Branch extends Zend_Db_Table_Rowset_Abstract
                             )
                         );
                 $ref[$value[$parent]]->addChild($node);
-                // Add a reference to the current node for the next iteration
                 $ref[$value[$primary]] = $node;
-        	} else { // root level node
-        	    // create root node
+        	} else {
                 $node = new $this->_rowClass(
                             array(
                                 'table'    => $this->_table,
@@ -101,7 +98,6 @@ class Zend_Db_NestedSet_Branch extends Zend_Db_Table_Rowset_Abstract
                             )
                         );
                $tree = $node;
-               // created reference to the root node
                $ref[$value[$primary]] = $node;
         	}
         }
