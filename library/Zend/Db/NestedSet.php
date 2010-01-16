@@ -620,6 +620,17 @@ abstract class Zend_Db_NestedSet extends Zend_Db_Table
 
         return $this->fetchAll($select);
     }
+    
+    /**
+     * Return the full tree
+     * 
+     * @param int $rootId
+     * @return Zend_Db_TreeBranchInterface
+     */
+    public function getTree($rootId = null)
+    {
+        return $this->fetchBranch(null, $rootId);
+    }
 
     /**
      * Add a child node to the 'last child' position

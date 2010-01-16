@@ -1,6 +1,7 @@
-#Usage
+Usage
+=====
 
-Sample data:
+Sample database:
 
     CREATE TABLE IF NOT EXISTS `categories` (
       `categoryId` int NOT NULL AUTO_INCREMENT,
@@ -22,8 +23,46 @@ Sample data:
     (7, 0, 'Radios', 5, 11, 12),
     (8, 0, 'CD Players', 5, 13, 14);
     
-Get a branch starting at a specific node:
+Get the full tree
+-----------------
     
+    <?php
+    
+    $table = new Zend_Db_NestedSet('categories');
+    
+    $tree = $table->getTree() 
+    
+    // or getTree($rootId) for mutli tree table
+    
+Get the full tree as a multidimensional associative array
+---------------------------------------------------------
+    
+    <?php
+    
+    $table = new Zend_Db_NestedSet('categories');
+    
+    $tree = $table->getTree()->toMultiArray() 
+    
+    // or getTree($rootId) for mutli tree table
+    
+    $navigation = new Zend_Navigation($tree);
+    
+Get the full tree as a recursive iterator
+---------------------------------------------------------
+    
+    <?php
+    
+    $table = new Zend_Db_NestedSet('categories');
+    
+    $tree = $table->getTree()->toIterator() 
+    
+    // or getTree($rootId) for mutli tree table    
+        
+    
+Get a branch starting at a specific node:
+-----------------------------------------
+
+    <?php
     $categoryTable = new Zend_Db_NestedSet('categories');
     
     $sql = $categoryTable->select()
