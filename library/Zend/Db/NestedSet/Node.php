@@ -241,15 +241,15 @@ class Zend_Db_NestedSet_Node extends Zend_Db_Table_Row_Abstract
             throw new Zend_Db_NestedSet_Exception('Unknown column.');
         }
                        
-        $sql  = "SELECT p.{$column}";
-        $sql .= " FROM {$tableName} AS n, {$tableName} AS p";
-        $sql .= " WHERE n.{$lft} BETWEEN p.{$lft} AND p.{$rgt}";
-        $sql .= " AND n.{$column} = '{$this->$column}'";
-        $sql .= " ORDER BY p.{$lft}";
-        
-        return $this->_table->getAdapter()
-                            ->query($sql)
-                            ->fetchAll();                    
+        $select = $this->_table->select();
+        $select->from(array('p' => 'categories'),
+                      array($column))
+               ->join(array('n' => 'categories'),
+                      "n.{$lft} BETWEEN p.{$lft} AND p.{$rgt} " .
+                      "AND n.{$column} = {$this->_table->getAdapter()->quote($this->$column)}")
+               ->order("p.{$lft}");               
+               
+        return $this->_table->fetchAll($select);                
     }
 
     public function getAncestors()

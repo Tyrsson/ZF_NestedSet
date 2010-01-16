@@ -292,11 +292,9 @@ class Zend_Db_NestedSetNodeTest extends Zend_Test_PHPUnit_DatabaseTestCase {
             $this->tree->select()->where('categoryName=?', 'LCD')
         );
         $path = $node->getPath('categoryName');
-        $pathString = '';
+        $items = array('Electronics', 'Televisions', 'LCD');
         foreach ($path as $item) {
-            $this->assertArrayHasKey('categoryName', $item);
-            $pathString .= $item['categoryName'] . '/';
-        }
-        $this->assertEquals('Electronics/Televisions/LCD/', $pathString);
+            $this->assertContains($item->categoryName, $items);            
+        }        
     }
 }
