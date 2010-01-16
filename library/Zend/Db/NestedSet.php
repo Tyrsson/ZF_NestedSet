@@ -243,6 +243,16 @@ abstract class Zend_Db_NestedSet extends Zend_Db_Table
     } 
     
     /**
+     * Return whether the table is in multi mode or not
+     * 
+     * @return bool
+     */
+    public function isMultiRoot()
+    {
+        return $this->_multiRoot;
+    }
+    
+    /**
      * Return a root node
      * @param $roodId
      * @return Zend_Db_Node_NestedSet

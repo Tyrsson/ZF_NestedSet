@@ -328,8 +328,26 @@ class Zend_Db_NestedSet_Node extends Zend_Db_Table_Row_Abstract
          return $this->_table->fetchAll($select);
     }
 
+    /**
+     * Return all the siblings of this node.
+     * 
+     * @return Zend_Db_TreeBranchInterface 
+     */
     public function getSiblings()
     {
-        // get all where same parent key
+        $select = $this->_table->select();
+        $parent = $this->_table->getParentKey();
+        $select->where($parent . '=?', $this->$parent);
+        
+        if ($this->_table->isMultiRoot()) {
+            $root = $this->_table->getRootKey();
+            $select->where($root . '=?', $this->$root);
+        }
+        
+        $lft = $this->_table->getLeftKey();
+        $select->where($lft . '!=?', $this->$lft)
+               ->order($lft);
+        
+        return $this->_table->fetchAll($select);
     }
 }

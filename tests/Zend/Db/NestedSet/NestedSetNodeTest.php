@@ -242,22 +242,7 @@ class Zend_Db_NestedSetNodeTest extends Zend_Test_PHPUnit_DatabaseTestCase {
         
         $tvNode->addChildren($children);
         $this->assertEquals(2, $tvNode->count());        
-    }
-    
-    public function testHasSiblings()
-    {
-        
-    }
-    
-    public function testGetSiblings()
-    {
-        
-    }
-    
-    public function testGetDepth()
-    {
-        
-    }
+    }    
     
     public function testIteration()
     {
@@ -311,5 +296,20 @@ class Zend_Db_NestedSetNodeTest extends Zend_Test_PHPUnit_DatabaseTestCase {
             $this->assertContains($item->categoryName, $items);            
         }
         $this->assertEquals(count($items), count($descendants));        
+    }
+    
+    public function testGetSiblings()
+    {
+        $node = $this->tree->fetchNode(
+            $this->tree->select()->where('categoryName=?', 'MP3 Players')
+        );
+        
+        $siblings = $node->getSiblings();
+        $items = array('Radios', 'CD Players');
+        
+        foreach ($siblings as $item) {
+            $this->assertContains($item->categoryName, $items);            
+        }
+        $this->assertEquals(count($items), count($siblings));                
     }
 }
