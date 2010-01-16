@@ -37,13 +37,6 @@ interface Zend_Db_TreeNodeInterface
     public function getParent();
 
     /**
-     * Return a branch filled with the nodes ancestors only
-     *
-     * @return Zend_Db_Tree_BranchInterface
-     */
-    public function getAncestors();
-
-    /**
      * Returns whether this node has descendants
      * 
      * @return bool
@@ -51,7 +44,7 @@ interface Zend_Db_TreeNodeInterface
     public function hasDescendants();
     
     /**
-     * Return a branch filled with an decendants of this node
+     * Return a branch filled with decendants of this node
      *
      * @return Zend_Db_Tree_BranchInterface
      */

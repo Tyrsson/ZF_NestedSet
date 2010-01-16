@@ -295,6 +295,21 @@ class Zend_Db_NestedSetNodeTest extends Zend_Test_PHPUnit_DatabaseTestCase {
         $items = array('Electronics', 'Televisions', 'LCD');
         foreach ($path as $item) {
             $this->assertContains($item->categoryName, $items);            
-        }        
+        }
+        $this->assertEquals(count($items), count($path));        
+    }
+    
+    public function testGetDescendants()
+    {
+        $node = $this->tree->fetchNode(
+            $this->tree->select()->where('categoryName=?', 'Audio Equipment')
+        );
+        $descendants = $node->getDescendants('categoryName');
+        $items = array('Audio Equipment', 'MP3 Players', 'Radios', 'CD Players');
+        
+        foreach ($descendants as $item) {
+            $this->assertContains($item->categoryName, $items);            
+        }
+        $this->assertEquals(count($items), count($descendants));        
     }
 }

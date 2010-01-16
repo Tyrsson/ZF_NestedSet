@@ -24,7 +24,10 @@ class Zend_Db_NestedSet_Node extends Zend_Db_Table_Row_Abstract
 	/**
 	 * Setup the node
 	 *
-	 * @todo Enable writing to the db from a node object
+	 * @todo Enable writing to the db from a node object under certain
+	 *        conditions. We set nodes read only because we cannot have unique
+	 *        left and right values, manually altering a node could possibly
+	 *        corrupt a tree.
 	 * @param array $config
 	 */
 	public function __construct(array $config = array())
@@ -34,12 +37,8 @@ class Zend_Db_NestedSet_Node extends Zend_Db_Table_Row_Abstract
             $this->addChildren($config['children']);
 		} else {
 		    $this->_children = array();
-		}
-		
-		/**
-		 * TODO Allow writing in a future version
-		 */
-		//$this->setReadOnly();
+		}		
+		$this->setReadOnly(true);
 	}
 
 	/**
@@ -218,7 +217,7 @@ class Zend_Db_NestedSet_Node extends Zend_Db_Table_Row_Abstract
      * value to return cannot be primary key, left or right identifiers.
      * 
      * @param string $column
-     * @return array $path
+     * @return Zend_Db_TreeBranchInterface $path collection of path nodes
      */
     public function getPath($column = null)
     {        
@@ -241,20 +240,14 @@ class Zend_Db_NestedSet_Node extends Zend_Db_Table_Row_Abstract
             throw new Zend_Db_NestedSet_Exception('Unknown column.');
         }
                        
-        $select = $this->_table->select();
-        $select->from(array('p' => 'categories'),
+        $select->from(array('p' => $tableName),
                       array($column))
-               ->join(array('n' => 'categories'),
+               ->join(array('n' => $tableName),
                       "n.{$lft} BETWEEN p.{$lft} AND p.{$rgt} " .
                       "AND n.{$column} = {$this->_table->getAdapter()->quote($this->$column)}")
                ->order("p.{$lft}");               
                
         return $this->_table->fetchAll($select);                
-    }
-
-    public function getAncestors()
-    {
-        // combine with getPath();
     }
 
     /**
@@ -269,9 +262,70 @@ class Zend_Db_NestedSet_Node extends Zend_Db_Table_Row_Abstract
         return (($this->$rgt - $this->$lft) > 1) ? true : false;        
     }
     
-    public function getDescendants()
+    /**
+     * Return the immediate descendants for this node. As an example, this would
+     * be useful for getting all items in the next level of a category or menu.
+     * 
+     * @todo get immediate descendants only or option to get all?
+     * @param string $column used for display/label e.g. categoryName
+     * @return Zend_Db_TreeBranchInterface
+     */
+    public function getDescendants($column = null)
     {
-        // get immediate decendants or get all?
+        $select = $this->_table->select();
+        $tableName = $this->_table->info(Zend_Db_Table::NAME);
+        $lft = $this->_table->getLeftKey();
+        $rgt = $this->_table->getRightKey();
+        $parent = $this->_table->getParentKey();
+        $primary = $this->_table->info(Zend_Db_Table::PRIMARY);
+        
+        if($column == null ||
+           $column == $primary[1] ||
+           $column == $lft ||
+           $column == $rgt)
+        {
+            throw new Zend_Db_NestedSet_Exception(
+                'Column cannot be null, primary, left or right.'
+            );       
+        }
+        if (!in_array($column, $this->_table->info(Zend_Db_Table::COLS))) {
+            throw new Zend_Db_NestedSet_Exception('Unknown column.');
+        }
+                          
+         $subStr="(SELECT n.{$column}, (COUNT(p.{$column}) - 1) AS depth
+                   FROM {$tableName} AS n,
+                   {$tableName} AS p
+                   WHERE n.{$lft} BETWEEN p.{$lft} AND p.{$rgt}
+                   AND n.{$column} = {$this->_table->getAdapter()->quote($this->$column)}
+                   GROUP BY n.{$column}
+                   ORDER BY n.{$lft})";
+         $subSelect = new Zend_Db_Expr($subStr);
+         
+         $select->setIntegrityCheck(false);
+         $select->from(array('n' => $tableName),
+                       array(
+                           "n.{$column}",
+                           "n.{$primary[1]}",
+                           "n.{$lft}",
+                           "n.{$rgt}",
+                           "n.{$parent}",
+                           "(COUNT(p.{$column})-(st.depth+1)) as depth")
+                       )
+                ->from(array('p' => $tableName),
+                       array())
+                ->from(array('sp'=> $tableName),
+                       array())
+                ->from(array('st'=> $subSelect),
+                       array())
+                ->where("n.{$lft} BETWEEN p.{$lft} AND p.{$rgt}
+                         AND n.{$lft} BETWEEN sp.{$lft} AND sp.{$rgt}
+                         AND sp.{$column} = st.{$column}
+                         AND depth = 1")
+                ->group("n.{$column}")
+                ->having('depth = 1')
+                ->order("n.{$lft}");
+                
+         return $this->_table->fetchAll($select);
     }
 
     public function getSiblings()
